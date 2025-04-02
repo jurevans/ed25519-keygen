@@ -17,12 +17,7 @@ module.exports = {
     port: 9000,
   },
   module: {
-    rules: [
-      // {
-      //   test: /\.(nockma|bin)$/,
-      //   use: "file-loader",
-      // },
-    ],
+    rules: [],
   },
   mode: "production",
 };

@@ -52,6 +52,7 @@ const app = async () => {
   // DOM
   const keyAliasInput = document.getElementById("key-alias");
   const keygenButton = document.getElementById("gen-keypair");
+  const resetButton = document.getElementById("reset");
 
   // Fetch latest records and update list
   updateList(await getRecords(store));
@@ -78,6 +79,11 @@ const app = async () => {
     } catch (e) {
       setError(console.error(e));
     }
+  });
+
+  resetButton.addEventListener("click", async () => {
+    await store.reset();
+    updateList(await getRecords(store));
   });
 };
 
