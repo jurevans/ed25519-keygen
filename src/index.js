@@ -72,7 +72,6 @@ const app = async () => {
 
     try {
       setError("");
-
       const keypair = await Keypair.genEd25519Keypair(alias);
       await store.add(alias, keypair.values);
       updateList(await getRecords(store));

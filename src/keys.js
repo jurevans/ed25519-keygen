@@ -6,15 +6,15 @@ import * as ed from "@noble/ed25519";
  */
 class Key {
   constructor(bytes) {
-    this.bytes = bytes;
+    this._bytes = bytes;
   }
 
   toHex() {
-    return ed.etc.bytesToHex(this.bytes);
+    return ed.etc.bytesToHex(this._bytes);
   }
 
   bytes() {
-    return this.bytes;
+    return this._bytes;
   }
 
   static fromHex(hexKey) {
