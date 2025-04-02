@@ -61,7 +61,7 @@ export class Store {
   async remove(key) {
     const store = await this.kvStore.get(this.storeKey);
     if (store && store[key]) {
-      store[key] = undefined;
+      delete store[key];
       await this.kvStore.set(this.storeKey, store);
     }
   }
@@ -80,5 +80,13 @@ export class Store {
       records.push(store[key]);
     }
     return records;
+  }
+
+  async reset() {
+    await this.kvStore.set(this.storeKey, {});
+  }
+
+  async clear() {
+    await this.kvStore.set(this.storeKey, null);
   }
 }

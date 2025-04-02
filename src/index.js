@@ -4,9 +4,6 @@ import { Keypair } from "./keys";
 const LOCALSTORAGE_PREFIX = "kudos-localstorage";
 const KEYSTORE_KEY = "kudos-keystore";
 
-/**
- * @returns Keypair instance
- */
 const clearListing = () => {
   const ul = document.getElementById("key-list");
   while (ul.firstChild) {
@@ -18,7 +15,12 @@ const insertKeypair = (keypair) => {
   const { alias, publicKey, algorithm } = keypair.values;
   const ul = document.getElementById("key-list");
   const li = document.createElement("li");
-  li.innerHTML = `<strong>${alias}</strong> ${algorithm} ${publicKey}`;
+  li.innerHTML = `<strong>${alias}</strong> ${algorithm} ${publicKey} `;
+  const deleteButton = document.createElement("button");
+  deleteButton.innerText = "Delete";
+  deleteButton.value = alias;
+  deleteButton.onclick = (e) => deleteKey(e.target.value);
+  li.appendChild(deleteButton);
   ul.appendChild(li);
 };
 
@@ -27,41 +29,54 @@ const updateList = (keypairs) => {
   keypairs.forEach((keypair) => insertKeypair(keypair));
 };
 
-const app = async () => {
-  // DOM
+const setError = (error) => {
+  document.getElementById("error-container").innerHTML = error;
+};
+
+const getRecords = async (store) => {
+  return ((await store.getAll()) || []).map((record) =>
+    Keypair.fromStoredKeypair(record),
+  );
+};
+
+const deleteKey = async (alias) => {
   const store = new Store(KEYSTORE_KEY, LOCALSTORAGE_PREFIX);
+  await store.remove(alias);
+  updateList(await getRecords(store));
+};
+
+const app = async () => {
+  // Instantiate store
+  const store = new Store(KEYSTORE_KEY, LOCALSTORAGE_PREFIX);
+
+  // DOM
   const keyAliasInput = document.getElementById("key-alias");
   const keygenButton = document.getElementById("gen-keypair");
 
-  // Data
-  const records = ((await store.getAll()) || []).map((record) =>
-    Keypair.fromStoredKeypair(record),
-  );
+  // Fetch latest records and update list
+  updateList(await getRecords(store));
 
-  updateList(records);
-
+  // Register event listeners
   keygenButton.addEventListener("click", async () => {
     const alias = keyAliasInput.value.trim();
     if (alias === "") {
-      throw { message: "Alias was not provided!" };
+      setError("Alias was not provided!");
+      return;
     }
 
     if (await store.get(alias)) {
-      // TODO: Add error container for validation messages!
-      console.error(`Keypair for ${alias} exists! Choose a different name.`);
+      setError(`Keypair for ${alias} exists! Choose a different name.`);
       return;
     }
 
     try {
-      const keypair = await Keypair.genEd25519Keypair(alias);
+      setError("");
 
+      const keypair = await Keypair.genEd25519Keypair(alias);
       await store.add(alias, keypair.values);
-      const records = ((await store.getAll()) || []).map((record) =>
-        Keypair.fromStoredKeypair(record),
-      );
-      updateList(records);
+      updateList(await getRecords(store));
     } catch (e) {
-      console.error(e);
+      setError(console.error(e));
     }
   });
 };

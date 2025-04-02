@@ -62,7 +62,7 @@ class Keypair {
     const privateKey = ed.utils.randomPrivateKey();
     const publicKey = await ed.getPublicKeyAsync(privateKey);
 
-    return new Keypair(alias, privateKey, publicKey);
+    return new Keypair(alias, privateKey, publicKey, "ed25519");
   }
 }
 
