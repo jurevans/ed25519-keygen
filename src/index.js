@@ -12,7 +12,7 @@ const clearListing = () => {
 };
 
 const insertKeypair = (keypair) => {
-  const { alias, publicKey, algorithm } = keypair.values;
+  const { alias, publicKey, algorithm } = keypair.values();
   const ul = document.getElementById("key-list");
   const li = document.createElement("li");
   li.innerHTML = `<strong>${alias}</strong> ${algorithm} ${publicKey} `;
@@ -73,7 +73,11 @@ const app = async () => {
     try {
       setError("");
       const keypair = await Keypair.genEd25519Keypair(alias);
-      await store.add(alias, keypair.values);
+
+      const { algorithm, privateKey, publicKey } = keypair;
+      console.log("Test destructuring:", { algorithm, privateKey, publicKey });
+
+      await store.add(alias, keypair.values());
       updateList(await getRecords(store));
     } catch (e) {
       setError(console.error(e));

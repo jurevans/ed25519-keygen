@@ -9,11 +9,17 @@ class Key {
     this._bytes = bytes;
   }
 
+  /**
+   * Hex encode key bytes
+   */
   toHex() {
     return ed.etc.bytesToHex(this._bytes);
   }
 
-  bytes() {
+  /**
+   * Get raw key bytes
+   */
+  get bytes() {
     return this._bytes;
   }
 
@@ -24,30 +30,52 @@ class Key {
 
 class Keypair {
   constructor(alias, privateKey, publicKey, algorithm = "ed25519") {
-    this.alias = alias;
-    this.privateKey = new Key(privateKey);
-    this.publicKey = new Key(publicKey);
-    this.algorithm = algorithm;
+    this._alias = alias;
+    this._privateKey = new Key(privateKey);
+    this._publicKey = new Key(publicKey);
+    this._algorithm = algorithm;
   }
 
-  get values() {
+  values() {
     return {
-      alias: this.alias,
-      algorithm: this.algorithm,
-      privateKey: this.privateKey.toHex(),
-      publicKey: this.publicKey.toHex(),
+      alias: this._alias,
+      algorithm: this._algorithm,
+      privateKey: this._privateKey.toHex(),
+      publicKey: this._publicKey.toHex(),
     };
   }
 
-  get raw() {
+  raw() {
     return {
-      alias: this.alias,
-      algorithm: this.algorithm,
-      privateKey: this.privateKey.bytes(),
-      publicKey: this.publicKey.bytes(),
+      alias: this._alias,
+      algorithm: this._algorithm,
+      privateKey: this._privateKey.bytes(),
+      publicKey: this._publicKey.bytes(),
     };
   }
 
+  /**
+   * Define getters to simplify destructuring: Keys will be returned as Uint8Array
+   */
+  get alias() {
+    return this._alias;
+  }
+
+  get algorithm() {
+    return this._algorithm;
+  }
+
+  get privateKey() {
+    return this._privateKey.bytes;
+  }
+
+  get publicKey() {
+    return this._publicKey.bytes;
+  }
+
+  /**
+   * Instantiate class from stored record
+   */
   static fromStoredKeypair(keypairRecord) {
     const { alias, algorithm, privateKey, publicKey } = keypairRecord;
     return new Keypair(
@@ -58,6 +86,9 @@ class Keypair {
     );
   }
 
+  /**
+   * Instantiate class from generated keys
+   */
   static async genEd25519Keypair(alias) {
     const privateKey = ed.utils.randomPrivateKey();
     const publicKey = await ed.getPublicKeyAsync(privateKey);
