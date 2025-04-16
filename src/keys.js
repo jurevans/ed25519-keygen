@@ -23,6 +23,13 @@ class Key {
     return this._bytes;
   }
 
+  /**
+   * Get hex-encoded key
+   */
+  get hex() {
+    return this.toHex(this._bytes);
+  }
+
   static fromHex(hexKey) {
     return new Key(ed.etc.hexToBytes(hexKey));
   }
@@ -55,7 +62,7 @@ class Keypair {
   }
 
   /**
-   * Define getters to simplify destructuring: Keys will be returned as Uint8Array
+   * Define public getters to simplify destructuring
    */
   get alias() {
     return this._alias;
@@ -65,12 +72,26 @@ class Keypair {
     return this._algorithm;
   }
 
+  /**
+   * Accessors to return keys as Uint8Array
+   */
   get privateKey() {
     return this._privateKey.bytes;
   }
 
   get publicKey() {
     return this._publicKey.bytes;
+  }
+
+  /**
+   * Optional accessors to get hex-encoded keys
+   */
+  get privateKeyHex() {
+    return this._privateKey.hex;
+  }
+
+  get publicKeyHex() {
+    return this._publicKey.hex;
   }
 
   /**
